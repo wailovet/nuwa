@@ -1,0 +1,6 @@
+{
+  "port": "20180",
+  "host": "0.0.0.0",
+  "cross_domain": "*",
+  "post_max_memory": 1024000
+}
