@@ -1,1 +1,3 @@
 package nuwa
+
+//go-bindata-assetfs -pkg nuwares -o nuwares/asset.go  nuwares/static/...
