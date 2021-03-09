@@ -6,11 +6,11 @@ import (
 
 func main() {
 	nuwa.Config().Host = "0.0.0.0"
-	nuwa.Http().HandleFunc("/hello", func(request nuwa.Request, response nuwa.Response) {
-		if len(request.REQUEST) > 0 {
-			response.DisplayByData(request.REQUEST)
+	nuwa.Http().HandleFunc("/hello", func(ctx nuwa.HttpContext) {
+		if len(ctx.REQUEST) > 0 {
+			ctx.DisplayByData(ctx.REQUEST)
 		}
-		response.DisplayByData("Hello world!")
+		ctx.DisplayByData("Hello world!")
 	})
 
 	_ = nuwa.Http().Run()

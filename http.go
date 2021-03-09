@@ -75,7 +75,7 @@ func (h *httpImp) Run() error {
 	return http.Serve(listener, r)
 }
 
-func (h *httpImp) HandleFunc(pattern string, callback func(request Request, response Response)) {
+func (h *httpImp) HandleFunc(pattern string, callback func(ctx HttpContext)) {
 
 	cc := h.InstanceConfig
 	r := h.GetChiRouter()
@@ -115,6 +115,9 @@ func (h *httpImp) HandleFunc(pattern string, callback func(request Request, resp
 			}
 		}()
 
-		callback(requestData, responseHandle)
+		callback(HttpContext{
+			Request:  requestData,
+			Response: responseHandle,
+		})
 	})
 }
