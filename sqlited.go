@@ -1,7 +1,6 @@
 package nuwa
 
 import (
-	_ "github.com/iamacarpet/go-sqlite3-dynamic"
 	"xorm.io/core"
 	"xorm.io/xorm"
 )

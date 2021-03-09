@@ -2,6 +2,7 @@ package nuwa
 
 import (
 	"fmt"
+	_ "github.com/iamacarpet/go-sqlite3-dynamic"
 	"github.com/wailovet/nuwa/nuwares"
 	"io/ioutil"
 	"os"
