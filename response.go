@@ -66,7 +66,11 @@ func (r *Response) CheckErrDisplayByError(err error, msg ...string) {
 	}
 }
 
-func (r *Response) DisplayBySuccess(msg string) {
+func (r *Response) DisplayBySuccess(msgs ...string) {
+	msg := "success"
+	if len(msgs) > 0 {
+		msg = msgs[0]
+	}
 	result := responseData{0, nil, msg}
 	text, err := json.Marshal(result)
 	if err != nil {
