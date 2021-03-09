@@ -2,6 +2,7 @@ package nuwa
 
 import (
 	"encoding/json"
+	"github.com/go-playground/form"
 	"io/ioutil"
 	"log"
 	"mime/multipart"
@@ -130,4 +131,17 @@ func (r *Request) SyncCookieData(request *http.Request) {
 
 func (r *Request) SyncSessionData(session *session) {
 	r.SESSION = session.GetSession()
+}
+
+func (r *Request) Bind(v interface{}) error {
+	if r.BODY != "" {
+		err := json.Unmarshal([]byte(r.BODY), v)
+		if err == nil {
+			return nil
+		}
+	}
+
+	decoder := form.NewDecoder()
+	decoder.SetTagName("json")
+	return decoder.Decode(v, r.OriginValues)
 }
