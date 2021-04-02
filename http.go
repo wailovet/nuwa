@@ -11,7 +11,7 @@ import (
 	"strings"
 )
 
-type NuwaHttp *httpImp
+type PublicHttp *httpImp
 
 func NewHttp(config *config) *httpImp {
 	http_.InstanceConfig = config
