@@ -11,6 +11,8 @@ import (
 	"strings"
 )
 
+type NuwaHttp *httpImp
+
 func NewHttp(config *config) *httpImp {
 	http_.InstanceConfig = config
 	return &http_
