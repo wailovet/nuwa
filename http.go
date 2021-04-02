@@ -12,8 +12,9 @@ import (
 )
 
 func NewHttp(config *config) *HttpEngine {
-	http_.InstanceConfig = config
-	return &http_
+	return &HttpEngine{
+		InstanceConfig: config,
+	}
 }
 
 func Http() *HttpEngine {
