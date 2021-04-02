@@ -23,8 +23,6 @@ type config struct {
 	UpdatePath          string          `json:"update_path"`
 }
 
-type PublicConfig *config
-
 var _config *config
 
 func SetConfigFile(c string) {

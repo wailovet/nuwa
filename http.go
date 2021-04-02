@@ -11,31 +11,29 @@ import (
 	"strings"
 )
 
-type PublicHttp *httpImp
-
-func NewHttp(config *config) *httpImp {
+func NewHttp(config *config) *HttpEngine {
 	http_.InstanceConfig = config
 	return &http_
 }
 
-func Http() *httpImp {
+func Http() *HttpEngine {
 	http_.InstanceConfig = Config()
 	return &http_
 }
 
-var http_ = httpImp{}
+var http_ = HttpEngine{}
 
-type httpImp struct {
+type HttpEngine struct {
 	chiRouter      *chi.Mux
 	isDebug        bool
 	InstanceConfig *config
 }
 
-func (h *httpImp) Debug() {
+func (h *HttpEngine) Debug() {
 	h.isDebug = false
 }
 
-func (h *httpImp) GetChiRouter() *chi.Mux {
+func (h *HttpEngine) GetChiRouter() *chi.Mux {
 	if h.chiRouter == nil {
 		h.chiRouter = chi.NewRouter()
 		if h.isDebug {
@@ -49,7 +47,7 @@ func (h *httpImp) GetChiRouter() *chi.Mux {
 	return h.chiRouter
 }
 
-func (h *httpImp) Run() error {
+func (h *HttpEngine) Run() error {
 	cc := h.InstanceConfig
 	Loger().Out("开始监听:", cc.Host+":"+cc.Port)
 
@@ -77,7 +75,7 @@ func (h *httpImp) Run() error {
 	return http.Serve(listener, r)
 }
 
-func (h *httpImp) HandleFunc(pattern string, callback func(ctx HttpContext)) {
+func (h *HttpEngine) HandleFunc(pattern string, callback func(ctx HttpContext)) {
 
 	cc := h.InstanceConfig
 	r := h.GetChiRouter()
