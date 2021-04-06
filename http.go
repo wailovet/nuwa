@@ -1,6 +1,7 @@
 package nuwa
 
 import (
+	"encoding/base64"
 	"fmt"
 	"github.com/go-chi/chi"
 	"github.com/go-chi/chi/middleware"
@@ -121,4 +122,37 @@ func (h *HttpEngine) HandleFunc(pattern string, callback func(ctx HttpContext)) 
 			Response: responseHandle,
 		})
 	})
+}
+
+func (h *HttpEngine) EnableAuth(user, password string) {
+	h.GetChiRouter().Use(func(handler http.Handler) http.Handler {
+		fn := func(w http.ResponseWriter, r *http.Request) {
+			if !checkAuth(r, user, password) {
+				w.Header().Set("WWW-Authenticate", `Basic realm="MY REALM"`)
+				http.Error(w, http.StatusText(http.StatusUnauthorized), http.StatusUnauthorized)
+			} else {
+				handler.ServeHTTP(w, r)
+			}
+		}
+		return http.HandlerFunc(fn)
+	})
+}
+
+func checkAuth(r *http.Request, user, pass string) bool {
+	s := strings.SplitN(r.Header.Get("Authorization"), " ", 2)
+	if len(s) != 2 {
+		return false
+	}
+
+	b, err := base64.StdEncoding.DecodeString(s[1])
+	if err != nil {
+		return false
+	}
+
+	pair := strings.SplitN(string(b), ":", 2)
+	if len(pair) != 2 {
+		return false
+	}
+
+	return pair[0] == user && pair[1] == pass
 }
