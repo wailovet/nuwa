@@ -6,7 +6,7 @@ import (
 
 func main() {
 	nuwa.Config().Host = "0.0.0.0"
-	nuwa.Http().EnableAuth("test", "test")
+	nuwa.Http().EnableAuthenticate("test", "test")
 	nuwa.Http().HandleFunc("/hello", func(ctx nuwa.HttpContext) {
 		if len(ctx.REQUEST) > 0 {
 			ctx.DisplayByData(ctx.REQUEST)

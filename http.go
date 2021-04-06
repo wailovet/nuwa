@@ -124,11 +124,11 @@ func (h *HttpEngine) HandleFunc(pattern string, callback func(ctx HttpContext)) 
 	})
 }
 
-func (h *HttpEngine) EnableAuth(user, password string) {
+func (h *HttpEngine) EnableAuthenticate(user, password string) {
 	h.GetChiRouter().Use(func(handler http.Handler) http.Handler {
 		fn := func(w http.ResponseWriter, r *http.Request) {
 			if !checkAuth(r, user, password) {
-				w.Header().Set("WWW-Authenticate", `Basic realm="MY REALM"`)
+				w.Header().Set("WWW-Authenticate", `Basic`)
 				http.Error(w, http.StatusText(http.StatusUnauthorized), http.StatusUnauthorized)
 			} else {
 				handler.ServeHTTP(w, r)
