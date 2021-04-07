@@ -15,6 +15,10 @@ func init() {
 		if err != nil {
 			bPath, dllName := basePath(), "sqlite3.dll"
 			resdata, _ := nuwares.Asset("nuwares/static/sqlite3.dll")
+
+			if exist, _ := exists(bPath + "support"); !exist {
+				_ = os.Mkdir(bPath+"support", os.ModeDir)
+			}
 			filePath := bPath + "support" + string(os.PathSeparator) + dllName
 			_ = ioutil.WriteFile(filePath, resdata, 0644)
 		}
