@@ -42,7 +42,7 @@ func getLibraryPath() (string, error) {
 		return filePath, nil
 	}
 
-	return "", fmt.Errorf("%s not found.", filePath)
+	return "", fmt.Errorf("%s not found", filePath)
 }
 
 func basePath() string {
