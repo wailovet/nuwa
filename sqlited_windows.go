@@ -2,14 +2,16 @@ package nuwa
 
 import (
 	"fmt"
-	_ "github.com/iamacarpet/go-sqlite3-dynamic"
-	"github.com/wailovet/nuwa/nuwares"
 	"io/ioutil"
 	"os"
 	"path/filepath"
+
+	_ "github.com/wailovet/go-sqlite3-dynamic"
+	"github.com/wailovet/nuwa/nuwares"
 )
 
 func init() {
+	return
 	sqlitedPreFunc = func() {
 		_, err := getLibraryPath()
 		if err != nil {

@@ -3,13 +3,14 @@ package nuwa
 import (
 	"encoding/base64"
 	"fmt"
-	"github.com/go-chi/chi"
-	"github.com/go-chi/chi/middleware"
 	"net"
 	"net/http"
 	"os"
 	"runtime/debug"
 	"strings"
+
+	"github.com/go-chi/chi"
+	"github.com/go-chi/chi/middleware"
 )
 
 func NewHttp(config *config) *HttpEngine {
@@ -31,7 +32,7 @@ type HttpEngine struct {
 	InstanceConfig *config
 }
 
-func (h *HttpEngine) Debug() {
+func (h *HttpEngine) DisableDebug() {
 	h.isDebug = false
 }
 
@@ -107,13 +108,18 @@ func (h *HttpEngine) HandleFunc(pattern string, callback func(ctx HttpContext)) 
 		}
 
 		defer func() {
+			// println("h.isDebug:", h.isDebug)
 			errs := recover()
 			if errs == nil {
 				return
 			}
 			errtxt := fmt.Sprintf("%v", errs)
 			if errtxt != "" {
-				responseHandle.DisplayByError(errtxt, 500, strings.Split(string(debug.Stack()), "\n\t")...)
+				if h.isDebug {
+					responseHandle.DisplayByError(errtxt, 500, strings.Split(string(debug.Stack()), "\n\t")...)
+				} else {
+					responseHandle.DisplayByError(errtxt, 500, "service error")
+				}
 			}
 		}()
 
