@@ -1,6 +1,8 @@
 package nuwa
 
 import (
+	"fmt"
+
 	"xorm.io/core"
 	"xorm.io/xorm"
 )
@@ -34,7 +36,7 @@ func (s *sqlite) Xorm() *xorm.Engine {
 		var err error
 		s.engine, err = xorm.NewEngine("sqlite3", s.filename)
 		if err != nil {
-			panic("数据库访问错误")
+			panic("数据库访问错误:" + fmt.Sprint(err))
 		}
 		if s.prefix != "" {
 			tbMapper := core.NewPrefixMapper(core.SnakeMapper{}, s.prefix)
