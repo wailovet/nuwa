@@ -4,7 +4,6 @@ import (
 	"encoding/json"
 	"io/ioutil"
 	"log"
-	"net/http"
 	"os"
 )
 
@@ -12,15 +11,12 @@ var configFile = "./config.json"
 var privateConfigFile = "./private.json"
 
 type config struct {
-	Port                string          `json:"port"`
-	Host                string          `json:"host"`
-	CrossDomain         string          `json:"cross_domain"`
-	StaticRouter        string          `json:"static_router"`
-	IsStaticStripPrefix bool            `json:"is_static_strip_prefix"`
-	StaticFileSystem    http.FileSystem `json:"static_file_system"`
-	PostMaxMemory       int64           `json:"post_max_memory"`
-	UpdateDir           string          `json:"update_dir"`
-	UpdatePath          string          `json:"update_path"`
+	Port          string `json:"port"`
+	Host          string `json:"host"`
+	CrossDomain   string `json:"cross_domain"`
+	PostMaxMemory int64  `json:"post_max_memory"`
+	UpdateDir     string `json:"update_dir"`
+	UpdatePath    string `json:"update_path"`
 }
 
 var _config *config
@@ -39,14 +35,12 @@ func SetConfig(c *config) {
 func Config() *config {
 	if _config == nil {
 		_config = &config{
-			Host:             "localhost",
-			Port:             "8808",
-			StaticRouter:     "/*",
-			StaticFileSystem: http.Dir("static"),
-			CrossDomain:      "*",
-			PostMaxMemory:    1024 * 1024 * 10,
-			UpdateDir:        "",
-			UpdatePath:       "",
+			Host:          "localhost",
+			Port:          "8808",
+			CrossDomain:   "*",
+			PostMaxMemory: 1024 * 1024 * 10,
+			UpdateDir:     "",
+			UpdatePath:    "",
 		}
 
 		_config.ReadConfig(configFile)

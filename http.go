@@ -5,7 +5,6 @@ import (
 	"fmt"
 	"net"
 	"net/http"
-	"os"
 	"runtime/debug"
 	"strings"
 
@@ -55,21 +54,6 @@ func (h *HttpEngine) Run() error {
 	Loger().Out("开始监听:", cc.Host+":"+cc.Port)
 
 	r := h.GetChiRouter()
-
-	if cc.StaticRouter == "" {
-		cc.StaticRouter = "/*"
-	}
-	_, err := os.Stat("./html")
-
-	if cc.StaticFileSystem == nil {
-		cc.StaticFileSystem = http.Dir("static")
-	}
-
-	staticHandle := http.FileServer(cc.StaticFileSystem)
-	if cc.IsStaticStripPrefix {
-		staticHandle = http.StripPrefix(strings.Replace(cc.StaticRouter, "*", "", -1), staticHandle)
-	}
-	r.Handle(cc.StaticRouter, staticHandle)
 
 	listener, err := net.Listen("tcp", cc.Host+":"+cc.Port)
 	if err != nil {
