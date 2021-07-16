@@ -3,6 +3,7 @@ package nuwa
 import (
 	"encoding/base64"
 	"fmt"
+	"io/fs"
 	"net"
 	"net/http"
 	"runtime/debug"
@@ -112,6 +113,28 @@ func (h *HttpEngine) HandleFunc(pattern string, callback func(ctx HttpContext)) 
 			Response: responseHandle,
 		})
 	})
+}
+
+func (h *HttpEngine) Static(fsys fs.FS, dir string) {
+	h.StaticRedirect("/", fsys, dir)
+}
+
+func (h *HttpEngine) StaticRedirect(pattern string, fsys fs.FS, dir string) {
+	for strings.HasSuffix(pattern, `/`) || strings.HasSuffix(pattern, `*`) {
+		pattern = strings.TrimSuffix(pattern, `*`)
+		pattern = strings.TrimSuffix(pattern, `/`)
+	}
+
+	for strings.HasSuffix(dir, `/`) || strings.HasPrefix(dir, `/`) {
+		dir = strings.Trim(dir, `/`)
+	}
+
+	mfs, err := fs.Sub(fsys, dir)
+	if err != nil {
+		fmt.Println("StaticRedirect error:", err)
+		return
+	}
+	h.GetChiRouter().Handle(fmt.Sprintf("%s/*", pattern), http.StripPrefix(pattern, http.FileServer(http.FS(mfs))))
 }
 
 func (h *HttpEngine) EnableAuthenticate(user, password string) {
