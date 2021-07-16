@@ -115,26 +115,34 @@ func (h *HttpEngine) HandleFunc(pattern string, callback func(ctx HttpContext)) 
 	})
 }
 
-func (h *HttpEngine) Static(fsys fs.FS, dir string) {
-	h.StaticRedirect("/", fsys, dir)
+func (h *HttpEngine) Static(fsys fs.FS, dirdf ...string) {
+	h.StaticRedirect("/", fsys, dirdf...)
 }
 
-func (h *HttpEngine) StaticRedirect(pattern string, fsys fs.FS, dir string) {
+func (h *HttpEngine) StaticRedirect(pattern string, fsys fs.FS, dirdf ...string) {
 	for strings.HasSuffix(pattern, `/`) || strings.HasSuffix(pattern, `*`) {
 		pattern = strings.TrimSuffix(pattern, `*`)
 		pattern = strings.TrimSuffix(pattern, `/`)
+	}
+	dir := ""
+	if len(dirdf) > 0 {
+		dir = dirdf[0]
 	}
 
 	for strings.HasSuffix(dir, `/`) || strings.HasPrefix(dir, `/`) {
 		dir = strings.Trim(dir, `/`)
 	}
 
-	mfs, err := fs.Sub(fsys, dir)
-	if err != nil {
-		fmt.Println("StaticRedirect error:", err)
-		return
+	var err error
+	if dir != "" {
+		fsys, err = fs.Sub(fsys, dir)
+		if err != nil {
+			fmt.Println("StaticRedirect error:", err)
+			return
+		}
 	}
-	h.GetChiRouter().Handle(fmt.Sprintf("%s/*", pattern), http.StripPrefix(pattern, http.FileServer(http.FS(mfs))))
+
+	h.GetChiRouter().Handle(fmt.Sprintf("%s/*", pattern), http.StripPrefix(pattern, http.FileServer(http.FS(fsys))))
 }
 
 func (h *HttpEngine) EnableAuthenticate(user, password string) {
