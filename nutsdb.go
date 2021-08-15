@@ -21,7 +21,7 @@ type NutsdbImp struct {
 }
 
 var defaultNutsdbDbPath = "data.nutsdb.db"
-var defaultNutsdbOptions = nutsdb.DefaultOptions
+var DefaultNutsdbOptions = nutsdb.DefaultOptions
 
 func NewNutsdb(path string, opt nutsdb.Options) (ret *NutsdbImp) {
 	opt.Dir = path
@@ -37,7 +37,7 @@ var nutsdbImp *NutsdbImp
 
 func NutsDB() (ret *NutsdbImp) {
 	if nutsdbImp == nil {
-		nutsdbImp = NewNutsdb(defaultNutsdbDbPath, defaultNutsdbOptions)
+		nutsdbImp = NewNutsdb(defaultNutsdbDbPath, DefaultNutsdbOptions)
 	}
 	return nutsdbImp
 }
