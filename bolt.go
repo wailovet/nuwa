@@ -1,10 +1,12 @@
 package nuwa
 
 import (
+	"bytes"
 	"encoding/json"
 
 	fastJson "github.com/goccy/go-json"
 	"github.com/tidwall/gjson"
+	"github.com/tidwall/sjson"
 	bolt "go.etcd.io/bbolt"
 	"golang.org/x/exp/errors/fmt"
 )
@@ -15,6 +17,7 @@ type BoltImp struct {
 	db     *bolt.DB
 	err1   error
 	bucket string
+	prefix string
 }
 
 var defaultBoltDbPath = "data.bolt.db"
@@ -43,8 +46,21 @@ func Bolt() (ret *BoltImp) {
 	return boltImp
 }
 
+func (b *BoltImp) DB() *bolt.DB {
+	return b.db
+}
+
 func (b *BoltImp) Close() {
 	b.db.Close()
+}
+
+func (b *BoltImp) Prefix(prefix string) *BoltImp {
+	return &BoltImp{
+		db:     b.db,
+		err1:   b.err1,
+		bucket: b.bucket,
+		prefix: prefix,
+	}
 }
 
 func (b *BoltImp) Bucket(bucket string) *BoltImp {
@@ -132,4 +148,42 @@ func (b *BoltImp) Set(key string, val interface{}) error {
 		}
 		return b.Put([]byte(key), data)
 	})
+}
+
+func (b *BoltImp) Page(val interface{}, page int, limit int) error {
+	if page > 0 {
+		page = page - 1
+	}
+	return b.Scan(val, page*limit, limit)
+}
+
+func (b *BoltImp) Scan(val interface{}, offsetNum int, limitNum int) error {
+	if b.db == nil {
+		return b.err1
+	}
+	ret := "[]"
+	index := 0
+	err := b.db.View(func(tx *bolt.Tx) error {
+		bk := tx.Bucket([]byte(b.bucket))
+		if bk != nil {
+			c := bk.Cursor()
+			for k, v := c.Seek([]byte(b.prefix)); k != nil && bytes.HasPrefix(k, []byte(b.prefix)); k, v = c.Next() {
+				// fmt.Printf("key=%s, value=%s\n", k, v)
+				reti, err := sjson.SetRaw(ret, fmt.Sprint(index), string(v))
+				if err == nil {
+					ret = reti
+					index++
+				}
+			}
+		}
+		return nil
+	})
+
+	if NutsdbDisableFastJson {
+		json.Unmarshal([]byte(ret), val)
+	} else {
+		fastJson.Unmarshal([]byte(ret), val)
+	}
+	return err
+
 }

@@ -49,6 +49,10 @@ func NutsDB() (ret *NutsdbImp) {
 	return nutsdbImp
 }
 
+func (b *NutsdbImp) DB() *nutsdb.DB {
+	return b.db
+}
+
 func (b *NutsdbImp) Close() {
 	b.db.Close()
 }
@@ -61,6 +65,7 @@ func (b *NutsdbImp) Prefix(prefix string) *NutsdbImp {
 		prefix: prefix,
 	}
 }
+
 func (b *NutsdbImp) Bucket(bucket string) *NutsdbImp {
 	return &NutsdbImp{
 		db:     b.db,
@@ -129,15 +134,15 @@ func (b *NutsdbImp) Set(key string, val interface{}) error {
 	})
 }
 
+func (b *NutsdbImp) Delete(key string) error {
+	return b.Delete(key)
+}
+
 func (b *NutsdbImp) Page(val interface{}, page int, limit int) error {
 	if page > 0 {
 		page = page - 1
 	}
 	return b.Scan(val, page*limit, limit)
-}
-
-func (b *NutsdbImp) Delete(key string) error {
-	return b.Delete(key)
 }
 
 func (b *NutsdbImp) Scan(val interface{}, offsetNum int, limitNum int) error {
