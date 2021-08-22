@@ -298,3 +298,27 @@ func (h *helperImp) RandomStr(length int) string {
 	}
 	return string(result)
 }
+
+func (h *helperImp) IsDir(path string) bool {
+	s, err := os.Stat(path)
+	if err != nil {
+		return false
+	}
+	return s.IsDir()
+}
+func (h *helperImp) AbsPath(pathname string) string {
+	s, _ := filepath.Abs(pathname)
+	return s
+}
+
+func (h *helperImp) DirRange(pathname string, cb func(pathItem string)) error {
+	rd, err := ioutil.ReadDir(pathname)
+	for _, fi := range rd {
+		if fi.IsDir() {
+			h.DirRange(h.AbsPath(pathname+fi.Name()+"\\"), cb)
+		} else {
+			cb(h.AbsPath(pathname + fi.Name() + "\\"))
+		}
+	}
+	return err
+}
