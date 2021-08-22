@@ -322,3 +322,12 @@ func (h *helperImp) DirRange(pathname string, cb func(pathItem string)) error {
 	}
 	return err
 }
+
+func (h *helperImp) ReadFileContent(path string) string {
+	r, _ := ioutil.ReadFile(path)
+	return string(r)
+}
+
+func (h *helperImp) WriteFileContent(path string, content string) {
+	ioutil.WriteFile(path, []byte(content), 0754)
+}
