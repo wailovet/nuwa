@@ -19,6 +19,8 @@ import (
 	"strconv"
 	"strings"
 	"time"
+
+	"github.com/yumaojun03/dmidecode"
 )
 
 var helper = helperImp{}
@@ -330,4 +332,19 @@ func (h *helperImp) ReadFileContent(path string) string {
 
 func (h *helperImp) WriteFileContent(path string, content string) {
 	ioutil.WriteFile(path, []byte(content), 0754)
+}
+
+func (h *helperImp) MacID() string {
+	dmi, err := dmidecode.New()
+	if err != nil {
+		return ""
+	}
+	infos, err := dmi.System()
+	if err != nil {
+		return ""
+	}
+	for i := range infos {
+		return infos[i].UUID
+	}
+	return ""
 }
