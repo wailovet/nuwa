@@ -19,7 +19,7 @@ func AppMode() *appModeImp {
 type appModeImp struct {
 }
 
-func (*appModeImp) Run(he *HttpEngine, w, h int) {
+func (*appModeImp) Run(w, h int, hes ...*HttpEngine) {
 	port := Helper().GetFreePort()
 	gofunc.New(func() {
 		ui, err := lorca.New(fmt.Sprint("http://127.0.0.1:", port), "", w, h)
@@ -52,7 +52,12 @@ func (*appModeImp) Run(he *HttpEngine, w, h int) {
 	}).Catch(func(i interface{}) {
 		log.Println("UI Catch:", i)
 	})
-
+	var he *HttpEngine
+	if len(hes) > 0 {
+		he = hes[0]
+	} else {
+		he = Http()
+	}
 	he.InstanceConfig.Port = fmt.Sprint(port)
 	he.Run()
 }
