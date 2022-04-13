@@ -10,10 +10,16 @@ import (
 	"golang.org/x/exp/errors/fmt"
 )
 
-type AppMode struct {
+var appMode = appModeImp{}
+
+func AppMode() *appModeImp {
+	return &appMode
 }
 
-func (*AppMode) Run(he *HttpEngine, w, h int) {
+type appModeImp struct {
+}
+
+func (*appModeImp) Run(he *HttpEngine, w, h int) {
 	port := Helper().GetFreePort()
 	gofunc.New(func() {
 		ui, err := lorca.New(fmt.Sprint("http://127.0.0.1:", port), "", w, h)
