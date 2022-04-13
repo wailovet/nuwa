@@ -22,31 +22,40 @@ type appModeImp struct {
 func (*appModeImp) Run(w, h int, hes ...*HttpEngine) {
 	port := Helper().GetFreePort()
 	gofunc.New(func() {
-		ui, err := lorca.New(fmt.Sprint("http://127.0.0.1:", port), "", w, h)
+		ui, err := lorca.New(fmt.Sprint("http://127.0.0.1:", port), Helper().GetSelfFilePath()+"/.cache/", w, h)
 		if err != nil {
 			fmt.Println(err)
 			return
 		}
 
+		ui.Bind("setItem", func(k, v string) {
+			NutsDB().Bucket("cache").Set(k, v)
+		})
+		ui.Bind("getItem", func(k string) string {
+			return NutsDB().Bucket("cache").Get(k).String()
+		})
 		gofunc.New(func() {
 			<-ui.Done()
 			ui.Close()
 			os.Exit(0)
 		})
-		time.Sleep(time.Second)
-
-		ui.Eval(`
-		setInterval(function () {
-			var xmlhttp = new XMLHttpRequest();
-			xmlhttp.open("GET", "/", true);
-			console.log(xmlhttp.send());
-			xmlhttp.onreadystatechange = function () { 
-				if (!xmlhttp.status) {
-					window.close()
-				}
+		gofunc.New(func() {
+			for {
+				ui.Eval(`
+				setTimeout(function () {
+					var xmlhttp = new XMLHttpRequest();
+					xmlhttp.open("GET", "/", true);
+					console.log(xmlhttp.send());
+					xmlhttp.onreadystatechange = function () { 
+						if (!xmlhttp.status) {
+							window.close()
+						}
+					}
+				},2000)
+				`).Err()
+				time.Sleep(time.Second)
 			}
-		}, 1000) 
-		`).Err()
+		})
 		gofunc.Pause()
 
 	}).Catch(func(i interface{}) {
