@@ -31,7 +31,7 @@ func (*AppMode) Run(he *HttpEngine, w, h int) {
 
 		ui.Eval(`
 		setInterval(function () {
-			xmlhttp = new XMLHttpRequest();
+			var xmlhttp = new XMLHttpRequest();
 			xmlhttp.open("GET", "/", true);
 			console.log(xmlhttp.send());
 			xmlhttp.onreadystatechange = function () { 
