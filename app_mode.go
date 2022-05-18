@@ -5,9 +5,10 @@ import (
 	"os"
 	"time"
 
+	"fmt"
+
 	"github.com/wailovet/gofunc"
 	"github.com/wailovet/lorca"
-	"golang.org/x/exp/errors/fmt"
 )
 
 var appMode = appModeImp{}

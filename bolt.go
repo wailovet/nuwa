@@ -4,11 +4,12 @@ import (
 	"bytes"
 	"encoding/json"
 
+	"fmt"
+
 	fastJson "github.com/goccy/go-json"
 	"github.com/tidwall/gjson"
 	"github.com/tidwall/sjson"
 	bolt "go.etcd.io/bbolt"
-	"golang.org/x/exp/errors/fmt"
 )
 
 var BoltDisableFastJson = false
