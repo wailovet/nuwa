@@ -40,12 +40,12 @@ func (*appModeImp) Run(he *HttpEngine, w, h int) {
 		setInterval(function () {
 			var xmlhttp = new XMLHttpRequest();
 			xmlhttp.open("GET", "/", true);
-			console.log(xmlhttp.send());
 			xmlhttp.onreadystatechange = function () { 
 				if (!xmlhttp.status) {
 					window.close()
 				}
 			}
+			xmlhttp.send();
 		}, 1000) 
 		`).Err()
 		gofunc.Pause()
