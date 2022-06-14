@@ -17,23 +17,24 @@ func AppMode() *appModeImp {
 }
 
 type appModeImp struct {
+	e func(ui lorca.UI)
 }
 
-func (*appModeImp) Run(w, h int, hes ...*HttpEngine) {
+func (ami *appModeImp) Event(e func(ui lorca.UI)) *appModeImp {
+	ami.e = e
+	return ami
+}
+func (ami *appModeImp) Run(w, h int, hes ...*HttpEngine) {
 	port := Helper().GetFreePort()
 	gofunc.New(func() {
-		ui, err := lorca.New(fmt.Sprint("http://127.0.0.1:", port), Helper().GetSelfFilePath()+"/.cache/", w, h)
+		ui, err := lorca.New(fmt.Sprint("http://127.0.0.1:", port), "", w, h)
 		if err != nil {
 			fmt.Println(err)
 			return
 		}
-
-		ui.Bind("setItem", func(k, v string) {
-			NutsDB().Bucket("cache").Set(k, v)
-		})
-		ui.Bind("getItem", func(k string) string {
-			return NutsDB().Bucket("cache").Get(k).String()
-		})
+		if ami.e != nil {
+			ami.e(ui)
+		}
 		gofunc.New(func() {
 			<-ui.Done()
 			ui.Close()
@@ -42,16 +43,18 @@ func (*appModeImp) Run(w, h int, hes ...*HttpEngine) {
 		gofunc.New(func() {
 			for {
 				ui.Eval(`
-				setTimeout(function () {
-					var xmlhttp = new XMLHttpRequest();
-					xmlhttp.open("GET", "/", true);
-					console.log(xmlhttp.send());
-					xmlhttp.onreadystatechange = function () { 
-						if (!xmlhttp.status) {
-							window.close()
+				if (!window["__interval"]) {
+					window["__interval"] = setInterval(function () {
+						var xmlhttp = new XMLHttpRequest();
+						xmlhttp.open("GET", "/", true);
+						console.log(xmlhttp.send());
+						xmlhttp.onreadystatechange = function () { 
+							if (!xmlhttp.status) {
+								window.close()
+							}
 						}
-					}
-				},2000)
+					},1000)
+				}
 				`).Err()
 				time.Sleep(time.Second)
 			}
