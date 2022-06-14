@@ -21,7 +21,7 @@ type BoltImp struct {
 	prefix string
 }
 
-var defaultBoltDbPath = "data.bolt.db"
+var DefaultBoltDbPath = "data.bolt.db"
 var defaultBoltOptions *bolt.Options = nil
 
 func NewBolt(path string, opt *bolt.Options) (ret *BoltImp) {
@@ -37,7 +37,7 @@ var boltImp *BoltImp
 
 func Bolt() (ret *BoltImp) {
 	if boltImp == nil {
-		db, err := bolt.Open(defaultBoltDbPath, 0666, defaultBoltOptions)
+		db, err := bolt.Open(DefaultBoltDbPath, 0666, defaultBoltOptions)
 		boltImp = &BoltImp{
 			db:     db,
 			err1:   err,
