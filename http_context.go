@@ -15,7 +15,9 @@ type HttpContext struct {
 var httpCache = NewNutsdbMemory(inmemory.DefaultOptions)
 
 func (r *HttpContext) EnableCache(ttl uint32) {
-	key := Helper().Md5(Helper().JsonEncode(r.REQUEST))
+	key := Helper().Md5(Helper().JsonEncode([]interface{}{
+		r.OriginRequest.URL.Path, r.REQUEST,
+	}))
 	r.DisplayCallback(func(data []byte, code int) {
 		httpCache.Set(key, map[string]interface{}{
 			"data": string(data),
