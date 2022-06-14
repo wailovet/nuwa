@@ -2,6 +2,7 @@ package nuwa
 
 import (
 	"encoding/json"
+	"errors"
 
 	"fmt"
 
@@ -9,15 +10,17 @@ import (
 	"github.com/tidwall/gjson"
 	"github.com/tidwall/sjson"
 	"github.com/xujiajun/nutsdb"
+	"github.com/xujiajun/nutsdb/inmemory"
 )
 
 var NutsdbDisableFastJson = false
 
 type NutsdbImp struct {
-	db     *nutsdb.DB
-	err1   error
-	bucket string
-	prefix string
+	db         *nutsdb.DB
+	inmemorydb *inmemory.DB
+	err1       error
+	bucket     string
+	prefix     string
 }
 
 var defaultNutsdbDbPath = "data.nutsdb.db"
@@ -39,6 +42,14 @@ func NewNutsdb(path string, opt nutsdb.Options) (ret *NutsdbImp) {
 		bucket: "main",
 	}
 }
+func NewNutsdbMemory(opt inmemory.Options) (ret *NutsdbImp) {
+	db, err := inmemory.Open(opt)
+	return &NutsdbImp{
+		inmemorydb: db,
+		err1:       err,
+		bucket:     "main",
+	}
+}
 
 var nutsdbImp *NutsdbImp
 
@@ -54,6 +65,9 @@ func (b *NutsdbImp) DB() *nutsdb.DB {
 }
 
 func (b *NutsdbImp) Close() {
+	if b.inmemorydb != nil {
+		return
+	}
 	b.db.Close()
 }
 
@@ -76,6 +90,18 @@ func (b *NutsdbImp) Bucket(bucket string) *NutsdbImp {
 }
 
 func (b *NutsdbImp) Load(key string, val interface{}) error {
+
+	if b.inmemorydb != nil {
+		v, err := b.inmemorydb.Get(b.bucket, []byte(b.prefix+key))
+		if err != nil {
+			return err
+		}
+		if NutsdbDisableFastJson {
+			return json.Unmarshal(v.Value, val)
+		}
+		return fastJson.Unmarshal(v.Value, val)
+	}
+
 	if b.db == nil {
 		return b.err1
 	}
@@ -98,6 +124,15 @@ func (b *NutsdbImp) Get(key string) gjson.Result {
 }
 
 func (b *NutsdbImp) GetRaw(key string) string {
+
+	if b.inmemorydb != nil {
+		v, err := b.inmemorydb.Get(b.bucket, []byte(b.prefix+key))
+		if err != nil {
+			return ""
+		}
+		return string(v.Value)
+	}
+
 	if b.db == nil {
 		fmt.Println("nutsdb error:", b.err1)
 		return ""
@@ -114,7 +149,26 @@ func (b *NutsdbImp) GetRaw(key string) string {
 	return ret
 }
 
-func (b *NutsdbImp) Set(key string, val interface{}) error {
+func (b *NutsdbImp) Set(key string, val interface{}, ttls ...uint32) error {
+	var ttl uint32
+	if len(ttls) > 0 {
+		ttl = ttls[0]
+	}
+	if b.inmemorydb != nil {
+		var err error
+		var data []byte
+
+		if NutsdbDisableFastJson {
+			data, err = json.Marshal(val)
+		} else {
+			data, err = fastJson.Marshal(val)
+		}
+		if err != nil {
+			return err
+		}
+		return b.inmemorydb.Put(b.bucket, []byte(b.prefix+key), data, ttl)
+	}
+
 	if b.db == nil {
 		return b.err1
 	}
@@ -135,7 +189,13 @@ func (b *NutsdbImp) Set(key string, val interface{}) error {
 }
 
 func (b *NutsdbImp) Delete(key string) error {
-	return b.Delete(key)
+
+	if b.inmemorydb != nil {
+		b.inmemorydb.Delete(b.bucket, []byte(b.prefix+key))
+	}
+	return b.db.Update(func(tx *nutsdb.Tx) error {
+		return tx.Delete(b.bucket, []byte(b.prefix+key))
+	})
 }
 
 func (b *NutsdbImp) Page(val interface{}, page int, limit int) error {
@@ -146,11 +206,16 @@ func (b *NutsdbImp) Page(val interface{}, page int, limit int) error {
 }
 
 func (b *NutsdbImp) Scan(val interface{}, offsetNum int, limitNum int) error {
+
+	ret := "[]"
+	index := 0
+	if b.inmemorydb != nil {
+		return errors.New("不支持")
+	}
+
 	if b.db == nil {
 		return b.err1
 	}
-	ret := "[]"
-	index := 0
 	err := b.db.View(func(tx *nutsdb.Tx) error {
 		// Constrain 100 entries returned
 		if entries, _, err := tx.PrefixScan(b.bucket, []byte(b.prefix), offsetNum, limitNum); err != nil {

@@ -3,11 +3,29 @@ package nuwa
 import (
 	"fmt"
 	"strconv"
+
+	"github.com/xujiajun/nutsdb/inmemory"
 )
 
 type HttpContext struct {
 	Request
 	Response
+}
+
+var httpCache = NewNutsdbMemory(inmemory.DefaultOptions)
+
+func (r *HttpContext) EnableCache(ttl uint32) {
+	key := Helper().Md5(Helper().JsonEncode(r.REQUEST))
+	r.DisplayCallback(func(data []byte, code int) {
+		httpCache.Set(key, map[string]interface{}{
+			"data": string(data),
+			"code": code,
+		}, ttl)
+	})
+	ret := httpCache.Get(key)
+	if ret.Map()["data"].String() != "" {
+		r.DisplayByRawCache([]byte(ret.Map()["data"].String()), int(ret.Map()["code"].Int()))
+	}
 }
 
 func (r *HttpContext) ParamRequired(key string) string {

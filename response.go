@@ -15,6 +15,8 @@ type responseData struct {
 type Response struct {
 	Session              *session
 	OriginResponseWriter http.ResponseWriter
+	displayCallback      func(data []byte, code int)
+	code                 int
 }
 
 func (r *Response) DisplayByRaw(data []byte) {
@@ -28,7 +30,31 @@ func (r *Response) DisplayByRaw(data []byte) {
 		r.OriginResponseWriter.Header().Set("Access-Control-Allow-Headers", "Origin, No-Cache, X-Requested-With, If-Modified-Since, Pragma, Last-Modified, Cache-Control, Expires, Content-Type, X-E4M-With")
 	}
 	_, _ = r.OriginResponseWriter.Write(data)
+	if r.displayCallback != nil {
+		r.displayCallback(data, r.code)
+	}
 	panic(nil)
+}
+
+func (r *Response) DisplayByRawCache(data []byte, code int) {
+
+	cc := Config()
+	//log.Println("crossDomain:", cc.CrossDomain)
+	if cc.CrossDomain != "" {
+		r.OriginResponseWriter.Header().Set("Access-Control-Allow-Origin", cc.CrossDomain)
+		r.OriginResponseWriter.Header().Set("Access-Control-Allow-Credentials", "true")
+		r.OriginResponseWriter.Header().Set("Access-Control-Allow-Methods", "Access-Control-Allow-Methods")
+		r.OriginResponseWriter.Header().Set("Access-Control-Allow-Headers", "Origin, No-Cache, X-Requested-With, If-Modified-Since, Pragma, Last-Modified, Cache-Control, Expires, Content-Type, X-E4M-With")
+	}
+	if code > 0 {
+		r.OriginResponseWriter.WriteHeader(code)
+	}
+	_, _ = r.OriginResponseWriter.Write(data)
+	panic(nil)
+}
+
+func (r *Response) DisplayCallback(displayCallback func(data []byte, code int)) {
+	r.displayCallback = displayCallback
 }
 
 func (r *Response) DisplayByString(data string) {
@@ -40,6 +66,7 @@ func (r *Response) Display(data interface{}, msg string, code int) {
 	text, err := json.Marshal(result)
 	if err != nil {
 		r.OriginResponseWriter.WriteHeader(500)
+		r.code = 500
 		r.DisplayByString("服务器异常:" + err.Error())
 	}
 	r.DisplayByRaw(text)
