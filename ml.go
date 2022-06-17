@@ -16,10 +16,9 @@ func ML() *mlImp {
 type mlImp struct {
 }
 
-func (m *mlImp) KMeans(groupNum int) *KMeans {
+func (m *mlImp) KMeans() *KMeans {
 	return &KMeans{
-		km:       kmeans.New(),
-		GroupNum: groupNum,
+		km: kmeans.New(),
 	}
 }
 
@@ -40,8 +39,9 @@ func (k *KMeans) AddTrainData(data clusters.Observations) *KMeans {
 	return k
 }
 
-func (k *KMeans) Train() error {
-	clusters, err := k.km.Partition(k.TrainData, 4)
+func (k *KMeans) Train(groupNum int) error {
+	k.GroupNum = groupNum
+	clusters, err := k.km.Partition(k.TrainData, k.GroupNum)
 	if err != nil {
 		return err
 	}
