@@ -18,10 +18,16 @@ func AppMode() *appModeImp {
 type appModeImp struct {
 	e    func(ui lorca.UI)
 	port int
+	url  string
 }
 
 func (ami *appModeImp) Event(e func(ui lorca.UI)) *appModeImp {
 	ami.e = e
+	return ami
+}
+
+func (ami *appModeImp) Load(url string) *appModeImp {
+	ami.url = url
 	return ami
 }
 
@@ -39,7 +45,12 @@ func (ami *appModeImp) Run(w, h int, hes ...*HttpEngine) {
 		if !helper.PathExists(dirData) {
 			dirData = ""
 		}
-		ui, err := lorca.New(fmt.Sprint("http://127.0.0.1:", ami.port), dirData, w, h)
+
+		if ami.url == "" {
+			ami.url = fmt.Sprint("http://127.0.0.1:", ami.port)
+		}
+
+		ui, err := lorca.New(ami.url, dirData, w, h)
 		if err != nil {
 			fmt.Println(err)
 			return
