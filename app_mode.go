@@ -27,7 +27,11 @@ func (ami *appModeImp) Event(e func(ui lorca.UI)) *appModeImp {
 func (ami *appModeImp) Run(w, h int, hes ...*HttpEngine) {
 	port := Helper().GetFreePort()
 	gofunc.New(func() {
-		ui, err := lorca.New(fmt.Sprint("http://127.0.0.1:", port), "", w, h)
+		dirData := helper.AbsPath("data")
+		if !helper.PathExists(dirData) {
+			dirData = ""
+		}
+		ui, err := lorca.New(fmt.Sprint("http://127.0.0.1:", port), dirData, w, h)
 		if err != nil {
 			fmt.Println(err)
 			return
