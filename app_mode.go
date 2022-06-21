@@ -19,6 +19,7 @@ type appModeImp struct {
 	e    func(ui lorca.UI)
 	port int
 	url  string
+	ui   lorca.UI
 }
 
 func (ami *appModeImp) Event(e func(ui lorca.UI)) *appModeImp {
@@ -26,6 +27,9 @@ func (ami *appModeImp) Event(e func(ui lorca.UI)) *appModeImp {
 	return ami
 }
 
+func (ami *appModeImp) UI() lorca.UI {
+	return ami.ui
+}
 func (ami *appModeImp) Load(url string) *appModeImp {
 	ami.url = url
 	return ami
