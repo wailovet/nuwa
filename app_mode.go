@@ -27,7 +27,7 @@ func (ami *appModeImp) Event(e func(ui lorca.UI)) *appModeImp {
 func (ami *appModeImp) Run(w, h int, hes ...*HttpEngine) {
 	port := Helper().GetFreePort()
 	gofunc.New(func() {
-		dirData := helper.AbsPath("data")
+		dirData := helper.AbsPath("lorca-data")
 		if !helper.PathExists(dirData) {
 			dirData = ""
 		}
