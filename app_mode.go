@@ -62,6 +62,7 @@ func (ami *appModeImp) Run(w, h int, hes ...*HttpEngine) {
 		if ami.e != nil {
 			ami.e(ui)
 		}
+		ami.ui = ui
 		gofunc.New(func() {
 			<-ui.Done()
 			ui.Close()
