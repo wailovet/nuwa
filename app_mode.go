@@ -32,8 +32,7 @@ func (ami *appModeImp) UI() lorca.UI {
 }
 
 func (ami *appModeImp) EvalFile(jsFile string, data interface{}) lorca.Value {
-	return ami.UI().Eval(fmt.Sprintf("var args = %s;\n", Helper().JsonEncode(data)) +
-		Helper().ReadFileContent(jsFile))
+	return ami.UI().Eval(fmt.Sprintf("var args = %s;\n(async () => {\n%s\n})()", Helper().JsonEncode(data), Helper().ReadFileContent(jsFile)))
 }
 
 func (ami *appModeImp) Load(url string) *appModeImp {
