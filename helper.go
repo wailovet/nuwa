@@ -6,6 +6,7 @@ import (
 	"crypto/aes"
 	"crypto/cipher"
 	"crypto/md5"
+	"crypto/tls"
 	"encoding/json"
 	"errors"
 	"fmt"
@@ -13,6 +14,7 @@ import (
 	"io/ioutil"
 	"math/rand"
 	"net"
+	"net/smtp"
 	"os"
 	"os/exec"
 	"path/filepath"
@@ -20,6 +22,7 @@ import (
 	"strings"
 	"time"
 
+	"github.com/jordan-wright/email"
 	"github.com/yumaojun03/dmidecode"
 )
 
@@ -347,4 +350,17 @@ func (h *helperImp) MacID() string {
 		return infos[i].UUID
 	}
 	return ""
+}
+
+func (h *helperImp) SendToMail(host, username, password, to, subject, body, mailtype string) error {
+	hp := strings.Split(host, ":")
+	auth := smtp.PlainAuth("", username, password, hp[0])
+
+	e := email.NewEmail()
+	e.From = username
+	e.To = []string{to}
+	e.Subject = subject
+	e.Text = []byte(body)
+
+	return e.SendWithTLS(host, auth, &tls.Config{ServerName: hp[0]})
 }
