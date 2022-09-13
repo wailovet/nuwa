@@ -12,14 +12,11 @@ import (
 )
 
 type Tar struct {
-	fileName string
-	src      []string
+	src []string
 }
 
-func NewTar(fileName string) *Tar {
-	return &Tar{
-		fileName: fileName,
-	}
+func NewTar() *Tar {
+	return &Tar{}
 }
 
 func (t *Tar) Add(src string) {
@@ -38,14 +35,14 @@ func (t *Tar) Create2GzipMemory() (*bytes.Buffer, error) {
 	return fw, err
 }
 
-func (t *Tar) Create2GzipFile() error {
+func (t *Tar) Create2GzipFile(fileName string) error {
 	buf, err := t.Create2GzipMemory()
 	if err != nil {
 		return err
 	}
-	fn := t.fileName
+	fn := fileName
 
-	if filepath.Ext(t.fileName) != ".gz" {
+	if filepath.Ext(fileName) != ".gz" {
 		fn = fn + ".gz"
 	}
 	return ioutil.WriteFile(fn, buf.Bytes(), 0644)
@@ -92,10 +89,10 @@ func (t *Tar) Create2Memory() (*bytes.Buffer, error) {
 	return fw, nil
 }
 
-func (t *Tar) Create2File() error {
+func (t *Tar) Create2File(fileName string) error {
 	buf, err := t.Create2Memory()
 	if err != nil {
 		return err
 	}
-	return ioutil.WriteFile(t.fileName, buf.Bytes(), 0644)
+	return ioutil.WriteFile(fileName, buf.Bytes(), 0644)
 }
