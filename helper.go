@@ -1,8 +1,10 @@
 package nuwa
 
 import (
+	"archive/tar"
 	"archive/zip"
 	"bytes"
+	"compress/gzip"
 	"crypto/aes"
 	"crypto/cipher"
 	"crypto/md5"
@@ -363,4 +365,39 @@ func (h *helperImp) SendToMail(host, username, password, to, subject, body, mail
 	e.Text = []byte(body)
 
 	return e.SendWithTLS(host, auth, &tls.Config{ServerName: hp[0]})
+}
+
+func (h *helperImp) DecompressTarGz(targzBuff *bytes.Buffer, target string) error {
+	gr, err := gzip.NewReader(targzBuff)
+	if err != nil {
+		return err
+	}
+	defer gr.Close()
+	tr := tar.NewReader(gr)
+
+	// 读取文件
+	for {
+		h, err := tr.Next()
+		if err == io.EOF {
+			break
+		}
+		if err != nil {
+			return err
+		}
+
+		fileTargz := filepath.Join(target, h.Name)
+		// 显示文件
+		fmt.Println(fileTargz)
+		// 打开文件
+
+		buf := bytes.NewBuffer(nil)
+		// 写文件
+		_, err = io.Copy(buf, tr)
+		if err != nil {
+			return err
+		}
+
+		ioutil.WriteFile(fileTargz, buf.Bytes(), h.FileInfo().Mode())
+	}
+	return nil
 }
