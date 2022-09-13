@@ -377,7 +377,7 @@ func (h *helperImp) DecompressTarGz(targzBuff *bytes.Buffer, target string) erro
 
 	// 读取文件
 	for {
-		h, err := tr.Next()
+		hn, err := tr.Next()
 		if err == io.EOF {
 			break
 		}
@@ -385,10 +385,15 @@ func (h *helperImp) DecompressTarGz(targzBuff *bytes.Buffer, target string) erro
 			return err
 		}
 
-		fileTargz := filepath.Join(target, h.Name)
+		fileTargz := filepath.Join(target, hn.Name)
 		// 显示文件
 		fmt.Println(fileTargz)
 		// 打开文件
+
+		fileDir := filepath.Dir(fileTargz)
+		if !h.PathExists(fileDir) {
+			os.MkdirAll(fileDir, os.ModeDir)
+		}
 
 		buf := bytes.NewBuffer(nil)
 		// 写文件
@@ -397,7 +402,7 @@ func (h *helperImp) DecompressTarGz(targzBuff *bytes.Buffer, target string) erro
 			return err
 		}
 
-		ioutil.WriteFile(fileTargz, buf.Bytes(), h.FileInfo().Mode())
+		ioutil.WriteFile(fileTargz, buf.Bytes(), hn.FileInfo().Mode())
 	}
 	return nil
 }
