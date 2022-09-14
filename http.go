@@ -1,6 +1,7 @@
 package nuwa
 
 import (
+	"embed"
 	"encoding/base64"
 	"fmt"
 	"io/fs"
@@ -12,6 +13,9 @@ import (
 	"github.com/go-chi/chi"
 	"github.com/go-chi/chi/middleware"
 )
+
+//go:embed preres
+var preres embed.FS
 
 func NewHttp(config *config) *HttpEngine {
 	return &HttpEngine{
@@ -61,6 +65,12 @@ func (h *HttpEngine) Run() error {
 		return err
 	}
 	return http.Serve(listener, r)
+}
+
+func (h *HttpEngine) PreRes() {
+	h.Static(preres, "preres")
+
+	h.GetChiRouter().Handle("/preres/*", http.FileServer(http.FS(preres)))
 }
 
 func (h *HttpEngine) HandleFunc(pattern string, callback func(ctx HttpContext)) {
