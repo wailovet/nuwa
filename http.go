@@ -40,6 +40,10 @@ func (h *HttpEngine) DisableDebug() {
 	h.isDebug = false
 }
 
+func (h *HttpEngine) EnableDebug() {
+	h.isDebug = true
+}
+
 func (h *HttpEngine) GetChiRouter() *chi.Mux {
 	if h.chiRouter == nil {
 		h.chiRouter = chi.NewRouter()
