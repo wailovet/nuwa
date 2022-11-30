@@ -17,7 +17,7 @@ require (
 	github.com/tidwall/sjson v1.2.4
 	github.com/wailovet/gofunc v0.0.0-20201119085723-df1175b913b4
 	github.com/wailovet/lorca v0.1.20
-	github.com/xujiajun/nutsdb v0.9.0
+	github.com/xujiajun/nutsdb v0.11.1
 	github.com/yumaojun03/dmidecode v0.1.4
 	go.etcd.io/bbolt v1.3.6
 	golang.org/x/exp/errors v0.0.0-20220722155223-a9213eeb770e

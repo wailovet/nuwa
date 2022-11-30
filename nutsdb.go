@@ -25,12 +25,11 @@ type NutsdbImp struct {
 
 var defaultNutsdbDbPath = "data.nutsdb.db"
 var DefaultNutsdbOptions = nutsdb.Options{
-	EntryIdxMode:         nutsdb.HintBPTSparseIdxMode,
-	SegmentSize:          8 * 1024 * 1024,
-	NodeNum:              1,
-	RWMode:               nutsdb.FileIO,
-	SyncEnable:           true,
-	StartFileLoadingMode: nutsdb.MMap,
+	EntryIdxMode: nutsdb.HintBPTSparseIdxMode,
+	SegmentSize:  8 * 1024 * 1024,
+	NodeNum:      1,
+	RWMode:       nutsdb.FileIO,
+	SyncEnable:   true,
 }
 
 func NewNutsdb(path string, opt nutsdb.Options) (ret *NutsdbImp) {
