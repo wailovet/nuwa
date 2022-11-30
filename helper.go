@@ -9,6 +9,7 @@ import (
 	"crypto/cipher"
 	"crypto/md5"
 	"crypto/tls"
+	"encoding/hex"
 	"encoding/json"
 	"errors"
 	"fmt"
@@ -105,7 +106,13 @@ func (h *helperImp) AesDecrypt(crypted, key []byte) ([]byte, error) {
 }
 
 func (h *helperImp) Md5(data string) string {
-	return fmt.Sprintf("%x", md5.Sum([]byte(data)))
+	sum := md5.Sum([]byte(data))
+	return hex.EncodeToString(sum[:])
+}
+
+func (h *helperImp) Md5WithByte(data []byte) string {
+	sum := md5.Sum(data)
+	return hex.EncodeToString(sum[:])
 }
 
 func (h *helperImp) PathExists(path string) bool {
