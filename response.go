@@ -2,13 +2,10 @@ package nuwa
 
 import (
 	"encoding/json"
-<<<<<<< HEAD
-	"log"
-=======
 	"image"
 	"image/jpeg"
 	"image/png"
->>>>>>> 4648b042d5a42244b3bcc45ec043dc4005db70cf
+	"log"
 	"net/http"
 	"strings"
 )
