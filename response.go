@@ -2,7 +2,13 @@ package nuwa
 
 import (
 	"encoding/json"
+<<<<<<< HEAD
 	"log"
+=======
+	"image"
+	"image/jpeg"
+	"image/png"
+>>>>>>> 4648b042d5a42244b3bcc45ec043dc4005db70cf
 	"net/http"
 	"strings"
 )
@@ -148,4 +154,41 @@ func (r *Response) SetCookie(name string, value string) {
 
 func (r *Response) SetHeader(name string, value string) {
 	r.OriginResponseWriter.Header().Set(name, value)
+}
+
+func (r *Response) DisplayJPEG(img image.Image, o ...*jpeg.Options) {
+
+	cc := Config()
+	if cc.CrossDomain != "" {
+		r.OriginResponseWriter.Header().Set("Access-Control-Allow-Origin", cc.CrossDomain)
+		r.OriginResponseWriter.Header().Set("Access-Control-Allow-Credentials", "true")
+		r.OriginResponseWriter.Header().Set("Access-Control-Allow-Methods", "Access-Control-Allow-Methods")
+		r.OriginResponseWriter.Header().Set("Access-Control-Allow-Headers", "Origin, No-Cache, X-Requested-With, If-Modified-Since, Pragma, Last-Modified, Cache-Control, Expires, Content-Type, X-E4M-With")
+	}
+
+	r.OriginResponseWriter.Header().Set("Content-Type", "image/jpeg")
+	opt := &jpeg.Options{
+		Quality: 95,
+	}
+	if len(o) > 0 {
+		opt = o[0]
+	}
+
+	jpeg.Encode(r.OriginResponseWriter, img, opt)
+	panic(nil)
+}
+func (r *Response) DisplayPNG(img image.Image) {
+
+	cc := Config()
+	if cc.CrossDomain != "" {
+		r.OriginResponseWriter.Header().Set("Access-Control-Allow-Origin", cc.CrossDomain)
+		r.OriginResponseWriter.Header().Set("Access-Control-Allow-Credentials", "true")
+		r.OriginResponseWriter.Header().Set("Access-Control-Allow-Methods", "Access-Control-Allow-Methods")
+		r.OriginResponseWriter.Header().Set("Access-Control-Allow-Headers", "Origin, No-Cache, X-Requested-With, If-Modified-Since, Pragma, Last-Modified, Cache-Control, Expires, Content-Type, X-E4M-With")
+	}
+
+	r.OriginResponseWriter.Header().Set("Content-Type", "image/png")
+
+	png.Encode(r.OriginResponseWriter, img)
+	panic(nil)
 }
