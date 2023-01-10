@@ -160,7 +160,9 @@ func (r *Response) DisplayJPEG(img image.Image, o ...*jpeg.Options) {
 	}
 
 	r.OriginResponseWriter.Header().Set("Content-Type", "image/jpeg")
-	opt := &jpeg.Options{}
+	opt := &jpeg.Options{
+		Quality: 95,
+	}
 	if len(o) > 0 {
 		opt = o[0]
 	}
