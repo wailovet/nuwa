@@ -2,6 +2,7 @@ package nuwa
 
 import (
 	"encoding/json"
+	"log"
 	"net/http"
 	"strings"
 )
@@ -29,7 +30,10 @@ func (r *Response) DisplayByRaw(data []byte) {
 		r.OriginResponseWriter.Header().Set("Access-Control-Allow-Methods", "Access-Control-Allow-Methods")
 		r.OriginResponseWriter.Header().Set("Access-Control-Allow-Headers", "Origin, No-Cache, X-Requested-With, If-Modified-Since, Pragma, Last-Modified, Cache-Control, Expires, Content-Type, X-E4M-With")
 	}
-	_, _ = r.OriginResponseWriter.Write(data)
+	_, err := r.OriginResponseWriter.Write(data)
+	if err != nil {
+		log.Println("DisplayByRaw error:", string(data))
+	}
 	if r.displayCallback != nil {
 		r.displayCallback(data, r.code)
 	}

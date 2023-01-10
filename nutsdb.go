@@ -28,7 +28,7 @@ var DefaultNutsdbOptions = nutsdb.Options{
 	EntryIdxMode: nutsdb.HintBPTSparseIdxMode,
 	SegmentSize:  8 * 1024 * 1024,
 	NodeNum:      1,
-	RWMode:       nutsdb.FileIO,
+	RWMode:       nutsdb.MMap,
 	SyncEnable:   true,
 }
 
