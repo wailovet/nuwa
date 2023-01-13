@@ -151,6 +151,19 @@ func (b *BoltImp) Set(key string, val interface{}) error {
 	})
 }
 
+func (b *BoltImp) SetRaw(key string, val string) error {
+	if b.db == nil {
+		return b.err1
+	}
+	return b.db.Update(func(tx *bolt.Tx) error {
+		b, err := tx.CreateBucketIfNotExists([]byte(b.bucket))
+		if err != nil {
+			return err
+		}
+		return b.Put([]byte(key), []byte(val))
+	})
+}
+
 func (b *BoltImp) Page(val interface{}, page int, limit int) error {
 	if page > 0 {
 		page = page - 1
