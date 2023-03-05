@@ -173,6 +173,26 @@ func (h *HttpEngine) EnableAuthenticate(user, password string) {
 	})
 }
 
+func (h *HttpEngine) EnableAuthWithUrl(url []string, user, password string) {
+	h.GetChiRouter().Use(func(handler http.Handler) http.Handler {
+		fn := func(w http.ResponseWriter, r *http.Request) {
+			for i := range url {
+				if strings.Index(r.URL.Path, url[i]) > -1 {
+					if !checkAuth(r, user, password) {
+						w.Header().Set("WWW-Authenticate", `Basic`)
+						http.Error(w, http.StatusText(http.StatusUnauthorized), http.StatusUnauthorized)
+					} else {
+						handler.ServeHTTP(w, r)
+					}
+					return
+				}
+			}
+
+		}
+		return http.HandlerFunc(fn)
+	})
+}
+
 func checkAuth(r *http.Request, user, pass string) bool {
 	s := strings.SplitN(r.Header.Get("Authorization"), " ", 2)
 	if len(s) != 2 {
