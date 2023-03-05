@@ -188,6 +188,7 @@ func (h *HttpEngine) EnableAuthWithUrl(url []string, user, password string) {
 				}
 			}
 
+			handler.ServeHTTP(w, r)
 		}
 		return http.HandlerFunc(fn)
 	})
