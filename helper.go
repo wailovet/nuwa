@@ -8,13 +8,19 @@ import (
 	"crypto/aes"
 	"crypto/cipher"
 	"crypto/md5"
+	crand "crypto/rand"
+	"crypto/rsa"
 	"crypto/tls"
+	"crypto/x509"
+	"crypto/x509/pkix"
 	"encoding/hex"
 	"encoding/json"
+	"encoding/pem"
 	"errors"
 	"fmt"
 	"io"
 	"io/ioutil"
+	"math/big"
 	"math/rand"
 	"net"
 	"net/smtp"
@@ -412,4 +418,58 @@ func (h *helperImp) DecompressTarGz(targzBuff *bytes.Buffer, target string) erro
 		ioutil.WriteFile(fileTargz, buf.Bytes(), hn.FileInfo().Mode())
 	}
 	return nil
+}
+
+func (h *helperImp) GeneratePEMFile(crt, key string) {
+	privateKey, err := rsa.GenerateKey(crand.Reader, 2048)
+	if err != nil {
+		fmt.Println("Error generating private key:", err)
+		return
+	}
+
+	// 生成自签名的证书
+	template := x509.Certificate{
+		SerialNumber:          big.NewInt(1),
+		Subject:               pkix.Name{CommonName: "example.com"},
+		NotBefore:             time.Now(),
+		NotAfter:              time.Now().AddDate(1, 0, 0),
+		BasicConstraintsValid: true,
+		DNSNames:              []string{"example.com", "www.example.com"},
+		IPAddresses:           []net.IP{net.ParseIP("127.0.0.1")},
+		ExtKeyUsage:           []x509.ExtKeyUsage{x509.ExtKeyUsageServerAuth},
+		KeyUsage:              x509.KeyUsageDigitalSignature | x509.KeyUsageKeyEncipherment,
+	}
+
+	certificateBytes, err := x509.CreateCertificate(crand.Reader, &template, &template, &privateKey.PublicKey, privateKey)
+	if err != nil {
+		fmt.Println("Error creating certificate:", err)
+		return
+	}
+
+	// 将证书和私钥保存到文件
+	certFile, err := os.Create(crt)
+	if err != nil {
+		fmt.Println("Error creating cert file:", err)
+		return
+	}
+
+	defer certFile.Close()
+	err = pem.Encode(certFile, &pem.Block{Type: "CERTIFICATE", Bytes: certificateBytes})
+	if err != nil {
+		fmt.Println("Error encoding certificate:", err)
+		return
+	}
+	keyFile, err := os.Create(key)
+	if err != nil {
+		fmt.Println("Error creating key file:", err)
+		return
+	}
+	defer keyFile.Close()
+	err = pem.Encode(keyFile, &pem.Block{Type: "RSA PRIVATE KEY", Bytes: x509.MarshalPKCS1PrivateKey(privateKey)})
+	if err != nil {
+		fmt.Println("Error encoding private key:", err)
+		return
+	}
+
+	fmt.Println("Certificates generated successfully.")
 }

@@ -71,6 +71,24 @@ func (h *HttpEngine) Run() error {
 	return http.Serve(listener, r)
 }
 
+func (h *HttpEngine) RunSSL() error {
+	cc := h.InstanceConfig
+	if cc.SSLPort == "" {
+		cc.SSLPort = "443"
+	}
+	if cc.CrtFile == "" || cc.KeyFile == "" {
+		cc.CrtFile = "server.crt"
+		cc.KeyFile = "server.key"
+		Helper().GeneratePEMFile(cc.CrtFile, cc.KeyFile)
+	}
+
+	Loger().Out("开始监听:", cc.Host+":"+cc.SSLPort)
+
+	r := h.GetChiRouter()
+
+	return http.ListenAndServeTLS(cc.Host+":"+cc.SSLPort, cc.CrtFile, cc.KeyFile, r)
+}
+
 func (h *HttpEngine) PreRes() {
 	h.Static(preres, "preres")
 

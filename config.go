@@ -11,6 +11,9 @@ var configFile = "./config.json"
 var privateConfigFile = "./private.json"
 
 type config struct {
+	CrtFile       string `json:"crt_file"`
+	KeyFile       string `json:"key_file"`
+	SSLPort       string `json:"ssl_port"`
 	Port          string `json:"port"`
 	Host          string `json:"host"`
 	CrossDomain   string `json:"cross_domain"`
