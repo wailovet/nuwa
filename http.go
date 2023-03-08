@@ -71,7 +71,7 @@ func (h *HttpEngine) Run() error {
 	return http.Serve(listener, r)
 }
 
-func (h *HttpEngine) RunSSL() error {
+func (h *HttpEngine) RunTLS() error {
 	cc := h.InstanceConfig
 	if cc.SSLPort == "" {
 		cc.SSLPort = "443"
