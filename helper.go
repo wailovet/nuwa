@@ -420,22 +420,24 @@ func (h *helperImp) DecompressTarGz(targzBuff *bytes.Buffer, target string) erro
 	return nil
 }
 
-func (h *helperImp) GeneratePEMFile(crt, key string) {
+func (h *helperImp) GeneratePEMFile(crt, key string, ipStr, fullDomainName string) {
 	privateKey, err := rsa.GenerateKey(crand.Reader, 2048)
 	if err != nil {
 		fmt.Println("Error generating private key:", err)
 		return
 	}
-
+	tmp := strings.Split(fullDomainName, ".")
+	domainName := tmp[len(tmp)-2] + "." + tmp[len(tmp)-1]
+	prefix := tmp[0]
 	// 生成自签名的证书
 	template := x509.Certificate{
 		SerialNumber:          big.NewInt(1),
-		Subject:               pkix.Name{CommonName: "example.com"},
+		Subject:               pkix.Name{CommonName: domainName},
 		NotBefore:             time.Now(),
 		NotAfter:              time.Now().AddDate(1, 0, 0),
 		BasicConstraintsValid: true,
-		DNSNames:              []string{"example.com", "www.example.com"},
-		IPAddresses:           []net.IP{net.ParseIP("127.0.0.1")},
+		DNSNames:              []string{domainName, fmt.Sprint(prefix, ".", domainName)},
+		IPAddresses:           []net.IP{net.ParseIP(ipStr)},
 		ExtKeyUsage:           []x509.ExtKeyUsage{x509.ExtKeyUsageServerAuth},
 		KeyUsage:              x509.KeyUsageDigitalSignature | x509.KeyUsageKeyEncipherment,
 	}

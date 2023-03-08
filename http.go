@@ -79,7 +79,15 @@ func (h *HttpEngine) RunSSL() error {
 	if cc.CrtFile == "" || cc.KeyFile == "" {
 		cc.CrtFile = "server.crt"
 		cc.KeyFile = "server.key"
-		Helper().GeneratePEMFile(cc.CrtFile, cc.KeyFile)
+		if !Helper().PathExists(cc.CrtFile) || !Helper().PathExists(cc.KeyFile) {
+			if cc.SSLIp == "" {
+				cc.SSLIp = cc.Host + ":" + cc.SSLPort
+			}
+			if cc.SSLDomain == "" {
+				cc.SSLDomain = "www.nuwaaass.com"
+			}
+			Helper().GeneratePEMFile(cc.CrtFile, cc.KeyFile, cc.SSLIp, cc.SSLDomain)
+		}
 	}
 
 	Loger().Out("开始监听:", cc.Host+":"+cc.SSLPort)
