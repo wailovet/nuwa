@@ -17,9 +17,9 @@ const UniversalConfigTypeSqlite UniversalConfigType = "sqlite"
 const UniversalConfigTypeBolt UniversalConfigType = "bolt"
 
 type NuwaUniversalConfig struct {
-	Id    int `xorm:"pk autoincr"`
-	Key   string
-	Value string
+	Id    int    `xorm:"pk autoincr"`
+	Key   string `xorm:"varchar(255) notnull unique"`
+	Value string `xorm:"LONGTEXT"`
 }
 
 type NuwaUniversalConfigInterface struct {
@@ -44,7 +44,7 @@ func (h *HttpEngine) EnableUniversalConfig(configType UniversalConfigType) *Nuwa
 		_get: func(key string) string {
 			if configType == UniversalConfigTypeSqlite {
 				data := NuwaUniversalConfig{}
-				Sqlited().Xorm().Where("key = ?", key).Get(&data)
+				Sqlited().Xorm().Where("key=?", key).Get(&data)
 				return data.Value
 			} else if configType == UniversalConfigTypeBolt {
 				return Bolt().Bucket("nuwa_universal_config").GetRaw(key)
@@ -54,10 +54,12 @@ func (h *HttpEngine) EnableUniversalConfig(configType UniversalConfigType) *Nuwa
 		_set: func(key string, value string) {
 			if configType == UniversalConfigTypeSqlite {
 				data := NuwaUniversalConfig{}
-				Sqlited().Xorm().Where("key = ?", key).Get(&data)
+				Sqlited().Xorm().Where("key=?", key).Get(&data)
 				if data.Id > 0 {
 					data.Value = value
-					Sqlited().Xorm().Update(&data)
+					Sqlited().Xorm().Where(
+						"key=?", key,
+					).Update(&data)
 				} else {
 					data.Key = key
 					data.Value = value
